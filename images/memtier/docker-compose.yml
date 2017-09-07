@@ -6,4 +6,4 @@ services:
     build: .
     links:
       - redis
-    command: [ "-s", "redis", ]
+    command: [ "-s", "redis" ]
