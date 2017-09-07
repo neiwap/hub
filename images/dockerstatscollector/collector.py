@@ -18,7 +18,6 @@ def fields(myk, myv):
         yield (myk, myv)
 
 def influx_format(stat, tags={}):
-    # TODO: container Labels in tags
     # TODO: cpu usage %, pg{in,out}/s, blkio byte/s
     time = stat['read']
     tags['name'] = stat['name']
@@ -42,13 +41,14 @@ def loop(clt, callbacks, Id, buffering):
     for stat in clt.stats(Id, decode=True):
         stats.append(stat)
         if len(stats) < buffering: continue
+        info = clt.inspect_container(Id)
+        if not info['State']['Running']: return
         for call in callbacks:
             try:
-                call(stats)
+                call(stats, info)
             except Exception as e:
                 print(e)
         stats = []
-        if not clt.inspect_container(Id)['State']['Running']: return
 
 def main():
     parser = optparse.OptionParser()
@@ -68,10 +68,10 @@ def main():
     if options.print:
         # TODO: lock
         # TODO: pretty print
-        callbacks.append(lambda stats : sys.stdout.write(str(stats)+'\n'))
+        callbacks.append(lambda stats, info : print(stats,info))
 
     if options.mongo:
-        def mongo(stats):
+        def mongo(stats, info):
             with pymongo.MongoClient() as client:
                 client[options.mongodbname][options.mongocollection].insert_many(stats)
         callbacks.append(mongo)
@@ -81,8 +81,8 @@ def main():
                                 port=int(options.influxdbport),
                                 database=options.influxdbname)
         client.create_database(options.influxdbname)
-        def influx(stats):
-            points = [point for stat in stats for point in influx_format(stat)]
+        def influx(stats, info):
+            points = [point for stat in stats for point in influx_format(stat,info["Config"]["Labels"])]
             client.write_points(points)
         callbacks.append(influx)
 
