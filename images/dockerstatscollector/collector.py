@@ -17,18 +17,17 @@ def fields(myk, myv):
     else:
         yield (myk, myv)
 
-def influx_format(stat):
+def influx_format(stat, tags={}):
+    # TODO: container Labels in tags
+    # TODO: cpu usage %, pg{in,out}/s, blkio byte/s
     time = stat['read']
-    name = stat['name']
-    id = stat['id']
+    tags['name'] = stat['name']
+    tags['id'] = stat['id']
     for measurement in ['memory_stats', 'blkio_stats', 'networks', 'cpu_stats']:
         if measurement not in stat: continue
         point = {
             "measurement": measurement,
-            "tags": {
-                'name' : name,
-                'id' : id,
-            },
+            "tags": tags,
             "time": time,
             "fields": {
                 '.'.join([str(e) for e in k]) : v
@@ -37,8 +36,9 @@ def influx_format(stat):
         }
         yield point
 
-def loop(clt, callbacks, Id, buffering, usefields=True):
+def loop(clt, callbacks, Id, buffering):
     stats = []
+    if not clt.inspect_container(Id)['State']['Running']: return
     for stat in clt.stats(Id, decode=True):
         stats.append(stat)
         if len(stats) < buffering: continue
@@ -48,10 +48,11 @@ def loop(clt, callbacks, Id, buffering, usefields=True):
             except Exception as e:
                 print(e)
         stats = []
+        if not clt.inspect_container(Id)['State']['Running']: return
 
 def main():
     parser = optparse.OptionParser()
-    parser.add_option('--buffering', dest="buffering", type=int, nargs=1, default=1)
+    parser.add_option('--buffering', dest="buffering", type=int, nargs=1, default=10)
     parser.add_option("--print", dest="print", default=False, action="store_true")
     parser.add_option("--mongo", dest="mongo", default=False, action="store_true")
     parser.add_option('--mongodbname', dest="mongodbname", type=str, nargs=1, default='prod')
