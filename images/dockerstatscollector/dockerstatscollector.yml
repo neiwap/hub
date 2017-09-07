@@ -1,0 +1,17 @@
+version: '2'
+services:
+  collector:
+    image: dockerstatscollector
+    command: [ "--influx", "--influxdbhost=influxdb" ]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - influxdb
+  influxdb:
+    image: influxdb:latest
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "80:3000"
+    links:
+      - influxdb
