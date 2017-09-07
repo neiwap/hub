@@ -8,11 +8,11 @@ import influxdb
 def fields(myk, myv):
     if type(myv) == dict:
         for k in myv:
-            for k, v in fields('.'.join([myk, k]), myv[k]):
+            for k, v in fields(myk+[k], myv[k]):
                 yield k, v
     elif type(myv) == list:
         for i in range(len(myv)):
-            for k, v in fields('.'.join([myk, str(i)]), myv[i]):
+            for k, v in fields(myk+[i], myv[i]):
                 yield k, v
     else:
         yield (myk, myv)
@@ -30,7 +30,10 @@ def influx_format(stat):
                 'id' : id,
             },
             "time": time,
-            "fields": {k:v for k,v in fields('', stat[measurement])},
+            "fields": {
+                '.'.join([str(e) for e in k]) : v
+                for k,v in fields([], stat[measurement])
+            },
         }
         yield point
 
