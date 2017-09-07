@@ -1,0 +1,26 @@
+version: '2'
+services:
+  master:
+    image: cloudsuite/data-analytics
+    container_name: master
+    hostname: master
+    command: [ "master" ]
+    networks:
+      - hadoop-net
+  slave0:
+    image: cloudsuite/hadoop
+    container_name: slave0
+    hostname: slave0
+    command: [ "slave" ]
+    networks:
+      - hadoop-net
+  slave1:
+    image: cloudsuite/hadoop
+    container_name: slave1
+    hostname: slave1
+    command: [ "slave" ]
+    networks:
+      - hadoop-net
+
+networks:
+  hadoop-net:
