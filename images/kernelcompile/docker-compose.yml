@@ -2,3 +2,17 @@ version: '2'
 services:
   kernelcompile:
     build: .
+    command: [ "--influx", "--influxdbhost=influxdb", "--stdout", "prepare", "run", "clean", "run"]
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    links:
+      - influxdb
+  influxdb:
+    image: influxdb:latest
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "80:3000"
+    links:
+      - influxdb
+  
