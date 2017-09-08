@@ -6,4 +6,5 @@ RUN apt-get update \
     time
 WORKDIR linux
 RUN make allmodconfig
-CMD time bash -c "make -j $(grep -c processor /proc/cpuinfo) > /dev/null"
+COPY benchmark.sh ./benchmark.sh
+ENTRYPOINT [ "./benchmark.sh" ]
