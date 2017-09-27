@@ -1,10 +1,15 @@
 import subprocess
 import time
+import argparse
+import parse
 
+main_parser = argparse.ArgumentParser()
+# TODO
 user = 'root'
 host = 'mysql'
 dbname = 'dbname'
 dbsize = 1000
+main_subparsers = main_parser.add_subparsers()
 
 sysbench_bin_path = './sysbench/sysbench'
 sysbench_lua_path = './sysbench/tests/db/oltp.lua'
@@ -21,6 +26,9 @@ sysbench_call = [sysbench_bin_path,
                  '--mysql-user=root',
                  '--mysql-password=']
 
+sysbench_expected_v05_intermediate_output = """[{}] timestamp: {timestamp}, threads: {threads}, tps: {trps}, reads: {rdps}, writes: {wrps}, response time: {rtps}ms ({}%), errors: {errps}, reconnects:  {recops}"""
+sysbenchoutput_parser = parse.compile(sysbench_expected_v05_intermediate_output)
+
 def wait_for_server_to_start():
     while True:
         try:
@@ -31,9 +39,42 @@ def wait_for_server_to_start():
         print('Waiting for %s to start' % (host))
         time.sleep(10)
         
-def prepare():
+def prepare(args):
     subprocess.check_call(mysql_call + ['-e', 'CREATE DATABASE %s' % dbname])
     subprocess.check_call(sysbench_call + ['prepare'])
 
-wait_for_server_to_start()
-prepare()
+def run(args):
+    call = sysbench_call + ['--report-interval=1',
+                            '--tx-rate=%d' % 0,
+                            '--max-requests=0',
+                            '--max-time=%d' % 10,
+                            '--num-threads=%d' % 8,
+                            '--oltp-read-only=on',
+                            'run']
+    p = subprocess.Popen(call, stdout=subprocess.PIPE)
+    for line in p.stdout:
+        res = sysbenchoutput_parser.search(line)
+        if res == None:
+            print(line)
+        else:
+            args.callback(res)
+
+def dummy(*args,**kwargs):
+    pass
+
+def main():
+    prepare_parser = main_subparsers.add_parser('prepare')
+    prepare_parser.set_defaults(func=prepare)
+    run_parser = main_subparsers.add_parser('run')
+    run_parser.set_defaults(func=run)
+    run_parser.set_defaults(callback=dummy)
+
+    args = main_parser.parse_args()
+
+    def foo(x): print(x)
+    args.callback = foo
+    
+    wait_for_server_to_start()
+    args.func(args)
+
+main()

@@ -1,0 +1,21 @@
+version: '2'
+services:
+  ci:
+    build: ci
+    command: [ "run" ]
+    links:
+      - db:mysql
+  db:
+    build: db
+    volumes:
+      - data:/var/lib/mysql
+    mem_limit: 1G
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '27mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '27mb'
+volumes:
+  data:
