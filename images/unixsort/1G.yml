@@ -1,0 +1,17 @@
+version: '2'
+services:
+  sort:
+    build: .
+    command: [ "100000000", "-S", "512M" ]
+    volumes:
+      - data-sort:/tmp
+    mem_limit: 1G
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '75mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '75mb'
+volumes:
+  data-sort:
