@@ -3,6 +3,8 @@ services:
   ci:
     build: ci
     command: [ "prepare" ]
+    links:
+      - db:mysql
   db:
     build: db
     volumes:

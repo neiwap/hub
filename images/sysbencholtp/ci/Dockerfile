@@ -14,3 +14,9 @@ RUN ./autogen.sh \
 &&  ./configure  \
 &&  make         \
 &&  make install
+RUN apt-get install -y \
+    python-pip
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+COPY benchmark.py .
+ENTRYPOINT [ "python", "benchmark.py" ]
