@@ -1,0 +1,10 @@
+version: '2'
+services:
+  sort:
+    build: .
+    command: [ "100000000" ]
+    volumes:
+      - data-sort:/tmp
+    mem_limit: 10G
+volumes:
+  data-sort:
