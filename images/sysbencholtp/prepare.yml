@@ -1,12 +1,12 @@
 version: '2'
 services:
-  ci:
-    build: ci
+  sysbench:
+    build: sysbench
     command: [ "prepare" ]
     links:
-      - db:mysql
-  db:
-    build: db
+      - mysql
+  mysql:
+    build: mysql
     volumes:
       - data:/var/lib/mysql
     mem_limit: 1G

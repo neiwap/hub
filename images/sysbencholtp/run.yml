@@ -1,12 +1,13 @@
 version: '2'
 services:
-  ci:
-    build: ci
+  sysbench:
+    build: sysbench
     command: [ "run" ]
     links:
-      - db:mysql
-  db:
-    build: db
+      - mysql
+      - influxdb
+  mysql:
+    build: mysql
     volumes:
       - data:/var/lib/mysql
     mem_limit: 1G
@@ -17,5 +18,13 @@ services:
       device_write_bps:
         - path: /dev/sda
           rate: '27mb'
+  influxdb:
+    image: influxdb:latest
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "80:3000"
+    links:
+      - influxdb
 volumes:
   data:
