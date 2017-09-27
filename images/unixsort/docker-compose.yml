@@ -1,10 +1,27 @@
 version: '2'
 services:
-  sort:
-    build: .
-    command: [ "100000000", "-S", "512M" ]
+  gensort:
+    build: gensort
+    command: [ "100000000" ]
+    privileged: true
     volumes:
       - data-sort:/tmp
-    mem_limit: 1G
+  valsort:
+    build: valsort
+    volumes:
+      - data-sort:/tmp
+  sort:
+    build: sort
+    command: [ "-S", "1G" ]
+    volumes:
+      - data-sort:/tmp
+    mem_limit: 10G
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '750mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '750mb'
 volumes:
   data-sort:

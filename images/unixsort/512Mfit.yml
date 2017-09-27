@@ -12,10 +12,10 @@ services:
       - data-sort:/tmp
   sort:
     build: sort
-    command: [ "-S", "1G" ]
+    command: [ "-S", "512M" ]
     volumes:
       - data-sort:/tmp
-    mem_limit: 1G
+    mem_limit: 512M
     blkio_config:
       device_read_bps:
         - path: /dev/sda

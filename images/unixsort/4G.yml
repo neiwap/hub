@@ -1,8 +1,18 @@
 version: '2'
 services:
+  gensort:
+    build: gensort
+    command: [ "100000000" ]
+    privileged: true
+    volumes:
+      - data-sort:/tmp
+  valsort:
+    build: valsort
+    volumes:
+      - data-sort:/tmp
   sort:
-    build: .
-    command: [ "100000000", "-S", "512M" ]
+    build: sort
+    command: [ "-S", "1G" ]
     volumes:
       - data-sort:/tmp
     mem_limit: 4G
