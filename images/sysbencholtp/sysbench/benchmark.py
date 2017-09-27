@@ -2,6 +2,8 @@ import subprocess
 import time
 import argparse
 import parse
+import influxdb
+import datetime
 
 main_parser = argparse.ArgumentParser()
 # TODO
@@ -47,7 +49,7 @@ def run(args):
     call = sysbench_call + ['--report-interval=1',
                             '--tx-rate=%d' % 0,
                             '--max-requests=0',
-                            '--max-time=%d' % 10,
+                            '--max-time=%d' % 0,
                             '--num-threads=%d' % 8,
                             '--oltp-read-only=on',
                             'run']
@@ -57,10 +59,21 @@ def run(args):
         if res == None:
             print(line)
         else:
-            args.callback(res)
+            args.callback(dict(res.named))
 
 def dummy(*args,**kwargs):
     pass
+
+def influx(fields, tags={}):
+    t = datetime.datetime.utcfromtimestamp(int(fields['timestamp']))
+    del fields['timestamp']
+    point = {
+        "measurement": "sysbench",
+        "tags": tags,
+        "time": t,
+        "fields": fields,
+    }
+    yield point
 
 def main():
     prepare_parser = main_subparsers.add_parser('prepare')
@@ -72,7 +85,14 @@ def main():
     args = main_parser.parse_args()
 
     def foo(x): print(x)
-    args.callback = foo
+    args.callback = influx
+
+    client = influxdb.InfluxDBClient(host='influxdb',
+                                     database='perf')
+    client.create_database('perf')
+    def callback(res):
+        client.write_points([p for p in influx(res)])
+    args.callback = callback
     
     wait_for_server_to_start()
     args.func(args)
