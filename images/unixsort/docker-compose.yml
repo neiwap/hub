@@ -3,7 +3,6 @@ services:
   gensort:
     build: gensort
     command: [ "100000000" ]
-    privileged: true
     volumes:
       - data-sort:/tmp
   valsort:

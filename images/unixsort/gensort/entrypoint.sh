@@ -8,6 +8,5 @@ shift
 if ! [ -f /tmp/unsorted ]
 then
     ./64/gensort -a ${N} /tmp/unsorted.tmp
-    echo 3 > /proc/sys/vm/drop_caches
     mv /tmp/unsorted.tmp /tmp/unsorted
 fi
