@@ -73,7 +73,7 @@ def run(args):
                             '--num-threads=%d' % 8,
                             '--oltp-read-only=on',
                             'run']
-    p = subprocess.Popen(call, stdout=subprocess.PIPE)
+    p = subprocess.Popen(call, bufsize=-1, stdout=subprocess.PIPE)
     for line in p.stdout:
         res = sysbenchoutput_parser.search(line)
         if res == None:
