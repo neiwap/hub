@@ -9,8 +9,10 @@ docker-compose -f unrestricted.yml up -d --build
 # Prepare Starts
 docker-compose exec sort     prepare -a ${STSIZE}
 docker-compose exec sysbench prepare --dbsize ${DBSIZE}
-# Prepare Endso
+# Prepare Ends
 docker-compose down
+
+echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 docker-compose up -d
 # docker-compose stop graphana # if you dont want online monitoring
