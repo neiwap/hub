@@ -12,6 +12,10 @@ services:
       - data-mysql:/var/lib/mysql
   influxdb:
     image: influxdb:latest
+    volumes:
+      - data-influxdb-var-lib:/var/lib/grafana
+      - data-influxdb-var-log:/var/log/grafana
+      - data-influxdb-etc:/etc/grafana
   collector:
     build: collector
     command: [ "--influx", "--influxdbhost=influxdb" ]
@@ -24,3 +28,6 @@ services:
 volumes:
   data-sort:
   data-mysql:
+  data-influxdb-var-lib:
+  data-influxdb-var-log:
+  data-influxdb-etc:

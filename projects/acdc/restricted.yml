@@ -50,3 +50,6 @@ services:
 volumes:
   data-sort:
   data-mysql:
+  data-influxdb-var-lib:
+  data-influxdb-var-log:
+  data-influxdb-etc:
