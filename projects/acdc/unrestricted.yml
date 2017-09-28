@@ -34,6 +34,6 @@ services:
 volumes:
   data-sort:
   data-mysql:
-  data-influxdb-var-lib:
-  data-influxdb-var-log:
-  data-influxdb-etc:
+  data-grafana-var-lib:
+  data-grafana-var-log:
+  data-grafana-etc:

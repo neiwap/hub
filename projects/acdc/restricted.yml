@@ -17,6 +17,7 @@ services:
     extends:
       file: nolinks.yml
       service: sysbench
+    cpuset: 0,4,1,5
     links:
       - mysql
       - influxdb
@@ -52,6 +53,6 @@ services:
 volumes:
   data-sort:
   data-mysql:
-  data-influxdb-var-lib:
-  data-influxdb-var-log:
-  data-influxdb-etc:
+  data-grafana-var-lib:
+  data-grafana-var-log:
+  data-grafana-etc:
