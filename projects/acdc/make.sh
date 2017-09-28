@@ -25,6 +25,10 @@ bash -c 'docker-compose exec sort run -S 1G' &
 while docker-compose exec sort status | grep running
 do
     docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE}
+    if ! docker-compose exec sort status | grep running
+    then
+	break
+    fi
     sleep ${PERIODE}
 done
 # RUN Ends
