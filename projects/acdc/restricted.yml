@@ -1,0 +1,58 @@
+version: '2'
+services:
+  sort:
+    extends:
+      file: nolinks.yml
+      service: sort
+    mem_limit: 1G
+    cpuset: 2,3,6,7
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '75mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '75mb'
+  sysbench:
+    extends:
+      file: nolinks.yml
+      service: sysbench
+    cpuset: 0,4,1,5
+    links:
+      - mysql
+      - influxdb
+  mysql:
+    extends:
+      file: nolinks.yml
+      service: mysql
+    mem_limit: 1G
+    cpuset: 0,4,1,5
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '27mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '27mb'
+  influxdb:
+    extends:
+      file: nolinks.yml
+      service: influxdb
+  collector:
+    extends:
+      file: nolinks.yml
+      service: collector
+    links:
+      - influxdb
+  grafana:
+    extends:
+      file: nolinks.yml
+      service: grafana
+    links:
+      - influxdb
+volumes:
+  data-sort:
+  data-mysql:
+  data-grafana-var-lib:
+  data-grafana-var-log:
+  data-grafana-etc:

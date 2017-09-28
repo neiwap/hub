@@ -35,10 +35,30 @@ def influx_format(stat, tags={}):
         }
         yield point
 
+def statsonthefly(stats):
+    system_cpu_usage_old = None
+    total_usage_old = None
+    for stat in stats:
+        if 'cpu_stats' in stat:
+            try:
+                system_cpu_usage_new = stat['cpu_stats']['system_cpu_usage']
+                total_usage_new = stat['cpu_stats']['cpu_usage']['total_usage']
+                if system_cpu_usage_old != None and total_usage_old != None:
+                    dx = system_cpu_usage_new - system_cpu_usage_old
+                    dy = total_usage_new - total_usage_old
+                    if dy >= 0 and dx >0:
+                        ncpu = len(stat['cpu_stats']['cpu_usage']['percpu_usage'])
+                        stat['cpu_stats']['percent_usage'] = 100 * ncpu * dy / dx
+                system_cpu_usage_old = system_cpu_usage_new
+                total_usage_old = total_usage_new
+            except Exception as e:
+                print(e)
+        yield stat
+
 def loop(clt, callbacks, Id, buffering):
     stats = []
     if not clt.inspect_container(Id)['State']['Running']: return
-    for stat in clt.stats(Id, decode=True):
+    for stat in statsonthefly(clt.stats(Id, decode=True)):
         stats.append(stat)
         if len(stats) < buffering: continue
         info = clt.inspect_container(Id)
