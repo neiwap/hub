@@ -19,4 +19,6 @@ RUN apt-get install -y \
 COPY requirements.txt .
 RUN pip install -r requirements.txt
 COPY benchmark.py .
-ENTRYPOINT [ "python", "benchmark.py" ]
+COPY prepare /usr/bin/prepare
+COPY run /usr/bin/run
+ENTRYPOINT [ "sleep", "inf" ]

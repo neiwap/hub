@@ -1,0 +1,3 @@
+#! /bin/bash
+set -x -e
+exec ./64/gensort $@ /tmp/unsorted

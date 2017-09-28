@@ -1,0 +1,36 @@
+version: '2'
+services:
+  sort:
+    extends:
+      file: nolinks.yml
+      service: sort
+  sysbench:
+    extends:
+      file: nolinks.yml
+      service: sysbench
+    links:
+      - mysql
+      - influxdb
+  mysql:
+    extends:
+      file: nolinks.yml
+      service: mysql
+  influxdb:
+    extends:
+      file: nolinks.yml
+      service: influxdb
+  collector:
+    extends:
+      file: nolinks.yml
+      service: collector
+    links:
+      - influxdb
+  grafana:
+    extends:
+      file: nolinks.yml
+      service: grafana
+    links:
+      - influxdb
+volumes:
+  data-sort:
+  data-mysql:
