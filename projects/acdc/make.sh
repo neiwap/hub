@@ -24,7 +24,7 @@ PERIODE=$((5*60))
 docker-compose exec -d sort run -S 1G
 while docker-compose exec sort status | grep running
 do
-    docker-compose exec -d sysbench run --dbsize ${DBSIZE} --duration ${PERIODE}
+    docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE}
     sleep ${PERIODE}
 done
 # RUN Ends
