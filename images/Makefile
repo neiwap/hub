@@ -7,4 +7,4 @@ all:$(IMAGES)
 %.img:$(wildcard %/*)
 	docker build -t $(@:%.img=%) $(@:%.img=%)
 
-
+memtier.img:memtier_benckmark.img

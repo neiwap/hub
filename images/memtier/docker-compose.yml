@@ -1,0 +1,9 @@
+version: '2'
+services:
+  redis:
+    image: redis
+  memtier:
+    build: .
+    links:
+      - redis
+    command: [ "-s", "redis" ]
