@@ -2,7 +2,7 @@ version: '2'
 services:
   kernelcompile:
     build: .
-    command: [ "--influx", "--influxdbhost=influxdb", "--stdout", "prepare", "run", "clean", "run"]
+    command: [ "--influx", "--influxdbhost=influxdb", "--stdout", "prepare", "run", "8", "clean", "run", "8"]
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     links:
