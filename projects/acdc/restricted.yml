@@ -5,6 +5,7 @@ services:
       file: nolinks.yml
       service: sort
     mem_limit: 1G
+    cpuset: 2,3,6,7
     blkio_config:
       device_read_bps:
         - path: /dev/sda
@@ -24,6 +25,7 @@ services:
       file: nolinks.yml
       service: mysql
     mem_limit: 1G
+    cpuset: 0,4,1,5
     blkio_config:
       device_read_bps:
         - path: /dev/sda
