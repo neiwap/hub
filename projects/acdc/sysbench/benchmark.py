@@ -11,6 +11,7 @@ user = 'root'
 host = 'mysql'
 dbname = 'dbname'
 dbsize = 1000
+duration = 5*60
 main_subparsers = main_parser.add_subparsers()
 
 sysbench_bin_path = './sysbench/sysbench'
@@ -68,7 +69,7 @@ def run(args):
     call = sysbench_call + ['--report-interval=1',
                             '--tx-rate=%d' % 0,
                             '--max-requests=0',
-                            '--max-time=%d' % 0,
+                            '--max-time=%d' % duration,
                             '--num-threads=%d' % 8,
                             '--oltp-read-only=on',
                             'run']

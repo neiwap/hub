@@ -1,0 +1,42 @@
+version: '2'
+services:
+  sysbench:
+    build: sysbench
+    command: [ "run" ]
+    links:
+      - mysql
+      - influxdb
+  mysql:
+    build: mysql
+    cgroup_parent: acdc
+    volumes:
+      - data:/var/lib/mysql
+    mem_limit: 1G
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '27mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '27mb'
+  influxdb:
+    extends:
+      file: metric.yml
+      service: influxdb
+  sort:
+    build: sort
+    command: [ "-S", "1G" ]
+    cgroup_parent: acdc
+    volumes:
+      - data-sort:/tmp
+    mem_limit: 1G
+    blkio_config:
+      device_read_bps:
+        - path: /dev/sda
+          rate: '75mb'
+      device_write_bps:
+        - path: /dev/sda
+          rate: '75mb'
+volumes:
+  data-sort:
+  data:
