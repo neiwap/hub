@@ -15,7 +15,7 @@ docker-compose down
 echo 3 | sudo tee /proc/sys/vm/drop_caches
 
 docker-compose up -d
-# docker-compose stop graphana # if you dont want online monitoring
+# docker-compose stop grafana # if you dont want online monitoring
 
 # RUN Starts
 # Mysql: |-----|ooooo|-----|ooooo|-----
@@ -34,4 +34,4 @@ do
 done
 # RUN Ends
 docker-compose stop collector
-docker-compose start graphana
+docker-compose start grafana
