@@ -4,6 +4,8 @@ import optparse
 import pymongo
 import sys
 import influxdb
+import datetime
+import time
 
 def fields(myk, myv):
     if type(myv) == dict:
@@ -45,7 +47,8 @@ class CPU_PERCENT_USAGE:
         try:
             system_cpu_usage_new = stat['cpu_stats']['system_cpu_usage']
             total_usage_new = stat['cpu_stats']['cpu_usage']['total_usage']
-            if system_cpu_usage_old != None and total_usage_old != None:
+            if (self.system_cpu_usage_old != None and
+                self.total_usage_old != None):
                 dx = system_cpu_usage_new - self.system_cpu_usage_old
                 dy = total_usage_new - self.total_usage_old
                 if dy >= 0 and dx >0:
@@ -57,10 +60,47 @@ class CPU_PERCENT_USAGE:
             print(e)
         return stat
 
+class IO_USAGE:
+    def __init__(self):
+        self.bytes_r_old = None
+        self.bytes_w_old = None
+        self.time_old = None
+    def update(self, stat):
+        if 'blkio_stats' not in stat:
+            return stat
+        try:
+            time_new = stat['read']
+            time_new = datetime.datetime.strptime(time_new[:-4], "%Y-%m-%dT%H:%M:%S.%f")
+            time_new = float(time.mktime(time_new.timetuple()))
+            bytes_r_new = 0.0
+            bytes_w_new = 0.0
+            for data in stat['blkio_stats']['io_service_bytes_recursive']:
+                if data['op'] == 'Write':
+                    bytes_w_new += data['value']
+                if data['op'] == 'Read':
+                    bytes_r_new += data['value']
+            if (self.bytes_r_old != None and
+                self.bytes_w_old != None and
+                self.time_old != None):
+                dr = bytes_r_new - self.bytes_r_old
+                dw = bytes_w_new - self.bytes_w_old
+                dt = time_new - self.time_old
+                if dt > 0 and dr >=0 and dw >= 0:
+                    stat['blkio_stats']['Rbps'] = dr/dt
+                    stat['blkio_stats']['Wbps'] = dw/dt
+            self.bytes_r_old = bytes_r_new
+            self.bytes_w_old = bytes_w_new
+            self.time_old = time_new
+        except Exception as e:
+            print(e)
+        return stat
+
 def statsonthefly(stats):
     cpu = CPU_PERCENT_USAGE()
+    io = IO_USAGE()
     for stat in stats:
         stat = cpu.update(stat)
+        stat = io.update(stat)
         yield stat
 
 def loop(clt, callbacks, Id, buffering):
