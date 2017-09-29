@@ -24,9 +24,10 @@ docker-compose up -d
 # docker-compose stop grafana # if you dont want online monitoring
 
 # RUN Starts
-# Mysql: |-----|ooooo|-----|ooooo|-----
-# Sort : |-----|-----|-----------------
+# Mysql: |-----|-----|ooooo|-----|ooooo|-----
+# Sort :       |-----|-----|-----------------
 PERIODE=$((60))
+docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
 docker-compose exec sort run -S 1G
 docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
 while docker-compose exec sort status | grep running
