@@ -64,6 +64,8 @@ class IO_USAGE:
     def __init__(self):
         self.bytes_r_old = None
         self.bytes_w_old = None
+        self.ios_r_old = None
+        self.ios_w_old = None
         self.time_old = None
     def update(self, stat):
         if 'blkio_stats' not in stat:
@@ -90,6 +92,25 @@ class IO_USAGE:
                     stat['blkio_stats']['Wbps'] = dw/dt
             self.bytes_r_old = bytes_r_new
             self.bytes_w_old = bytes_w_new
+            ios_r_new = 0.0
+            ios_w_new = 0.0
+            for data in stat['blkio_stats']['io_serviced_recursive']:
+                if data['op'] == 'Write':
+                    ios_w_new += data['value']
+                if data['op'] == 'Read':
+                    ios_r_new += data['value']
+            if (self.ios_r_old != None and
+                self.ios_w_old != None and
+                self.time_old != None):
+                dr = ios_r_new - self.ios_r_old
+                dw = ios_w_new - self.ios_w_old
+                dt = time_new - self.time_old
+                if dt > 0 and dr >=0 and dw >= 0:
+                    stat['blkio_stats']['Riops'] = dr/dt
+                    stat['blkio_stats']['Wiops'] = dw/dt
+            self.ios_r_old = ios_r_new
+            self.ios_w_old = ios_w_new
+            # Time
             self.time_old = time_new
         except Exception as e:
             print(e)
