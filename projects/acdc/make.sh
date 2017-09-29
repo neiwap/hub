@@ -1,10 +1,16 @@
 #!/bin/bash
 set -x -e
 
+: ${MEMORY:=$((2**31))} # 2**30 + 2**29 to let sort stress mysql
 : ${STSIZE:=100000000}
 : ${DBSIZE:=10000000}
 
 docker-compose down
+sudo cgdelete -g memory:/consolidate || true
+sudo cgcreate -g memory:/consolidate
+echo 1 | sudo tee $(lssubsys -m memory | cut -d ' ' -f2)/consolidate/memory.use_hierarchy
+echo ${MEMORY} | sudo tee $(lssubsys -m memory | cut -d ' ' -f2)/consolidate/memory.limit_in_bytes
+
 docker-compose -f unrestricted.yml up -d --build
 # Prepare Starts
 docker-compose exec sort     prepare          ${STSIZE} > /dev/null 2>&1

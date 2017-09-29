@@ -4,6 +4,7 @@ services:
     extends:
       file: nolinks.yml
       service: sort
+    cgroup_parent: consolidate
     mem_limit: 1G
     cpuset: 0,4,1,5
     cpu_shares: 2
@@ -26,6 +27,7 @@ services:
     extends:
       file: nolinks.yml
       service: mysql
+    cgroup_parent: consolidate
     mem_limit: 1G
     cpuset: 0,4,1,5
     cpu_shares: 1024
