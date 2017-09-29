@@ -7,7 +7,7 @@ set -x -e
 docker-compose down
 docker-compose -f unrestricted.yml up -d --build
 # Prepare Starts
-docker-compose exec sort     prepare -a ${STSIZE}
+docker-compose exec sort     prepare          ${STSIZE}
 docker-compose exec sysbench prepare --dbsize ${DBSIZE}
 # Prepare Ends
 docker-compose down

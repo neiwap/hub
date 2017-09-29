@@ -9,10 +9,10 @@ services:
     blkio_config:
       device_read_bps:
         - path: /dev/sda
-          rate: '75mb'
+          rate: '27mb'
       device_write_bps:
         - path: /dev/sda
-          rate: '75mb'
+          rate: '27mb'
   sysbench:
     extends:
       file: nolinks.yml

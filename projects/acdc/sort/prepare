@@ -1,4 +1,9 @@
 #! /bin/bash
 set -x -e
-rm -f /tmp/*sorted*
-exec ./64/gensort $@ /tmp/unsorted
+rm -f /tmp/sort*
+if [ -f /tmp/unsorted ] && [ $(wc -l < /tmp/unsorted) -eq $1 ]
+then
+    exit 0
+fi
+rm -f /tmp/unsorted
+exec ./64/gensort -a $1 /tmp/unsorted
