@@ -5,14 +5,14 @@ services:
       file: nolinks.yml
       service: sort
     mem_limit: 1G
-    cpuset: 2,3,6,7
+    cpuset: 2,2
     blkio_config:
       device_read_bps:
         - path: /dev/sda
-          rate: '27mb'
+          rate: '75mb'
       device_write_bps:
         - path: /dev/sda
-          rate: '27mb'
+          rate: '75mb'
   sysbench:
     extends:
       file: nolinks.yml

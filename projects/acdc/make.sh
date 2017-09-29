@@ -21,15 +21,16 @@ docker-compose up -d
 # Mysql: |-----|ooooo|-----|ooooo|-----
 # Sort : |-----|-----|-----------------
 PERIODE=$((5*60))
-bash -c 'docker-compose exec sort run -S 1G' &
+docker-compose exec sort run -S 1G
+docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
 while docker-compose exec sort status | grep running
 do
-    docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE}
+    sleep ${PERIODE}
     if ! docker-compose exec sort status | grep running
     then
 	break
     fi
-    sleep ${PERIODE}
+    docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
 done
 # RUN Ends
 docker-compose stop collector

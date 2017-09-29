@@ -1,3 +1,3 @@
 #! /bin/bash
 set -x -e
-exec /usr/bin/time sort $@ < /tmp/unsorted > /tmp/sorted
+echo "/usr/bin/time sort $@ < /tmp/unsorted > /tmp/sorted" > $(mktemp ./jobXXX)
