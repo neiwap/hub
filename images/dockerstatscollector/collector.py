@@ -35,24 +35,32 @@ def influx_format(stat, tags={}):
         }
         yield point
 
+class CPU_PERCENT_USAGE:
+    def __init__(self):
+        self.system_cpu_usage_old = None
+        self.total_usage_old = None
+    def update(self, stat):
+        if 'cpu_stats' not in stat:
+            return stat
+        try:
+            system_cpu_usage_new = stat['cpu_stats']['system_cpu_usage']
+            total_usage_new = stat['cpu_stats']['cpu_usage']['total_usage']
+            if system_cpu_usage_old != None and total_usage_old != None:
+                dx = system_cpu_usage_new - self.system_cpu_usage_old
+                dy = total_usage_new - self.total_usage_old
+                if dy >= 0 and dx >0:
+                    ncpu = len(stat['cpu_stats']['cpu_usage']['percpu_usage'])
+                    stat['cpu_stats']['percent_usage'] = 100 * ncpu * dy / dx
+            self.system_cpu_usage_old = system_cpu_usage_new
+            self.total_usage_old = total_usage_new
+        except Exception as e:
+            print(e)
+        return stat
+
 def statsonthefly(stats):
-    system_cpu_usage_old = None
-    total_usage_old = None
+    cpu = CPU_PERCENT_USAGE()
     for stat in stats:
-        if 'cpu_stats' in stat:
-            try:
-                system_cpu_usage_new = stat['cpu_stats']['system_cpu_usage']
-                total_usage_new = stat['cpu_stats']['cpu_usage']['total_usage']
-                if system_cpu_usage_old != None and total_usage_old != None:
-                    dx = system_cpu_usage_new - system_cpu_usage_old
-                    dy = total_usage_new - total_usage_old
-                    if dy >= 0 and dx >0:
-                        ncpu = len(stat['cpu_stats']['cpu_usage']['percpu_usage'])
-                        stat['cpu_stats']['percent_usage'] = 100 * ncpu * dy / dx
-                system_cpu_usage_old = system_cpu_usage_new
-                total_usage_old = total_usage_new
-            except Exception as e:
-                print(e)
+        stat = cpu.update(stat)
         yield stat
 
 def loop(clt, callbacks, Id, buffering):
