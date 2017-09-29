@@ -5,19 +5,20 @@ services:
       file: nolinks.yml
       service: sort
     mem_limit: 1G
-    cpuset: 2,2
+    cpuset: 0,4,1,5
+    cpu_shares: 2
     blkio_config:
       device_read_bps:
         - path: /dev/sda
-          rate: '75mb'
+          rate: '750mb'
       device_write_bps:
         - path: /dev/sda
-          rate: '75mb'
+          rate: '750mb'
   sysbench:
     extends:
       file: nolinks.yml
       service: sysbench
-    cpuset: 0,4,1,5
+    cpuset: 2,3,6,7
     links:
       - mysql
       - influxdb
@@ -27,29 +28,33 @@ services:
       service: mysql
     mem_limit: 1G
     cpuset: 0,4,1,5
+    cpu_shares: 1024
     blkio_config:
       device_read_bps:
         - path: /dev/sda
-          rate: '27mb'
+          rate: '270mb'
       device_write_bps:
         - path: /dev/sda
-          rate: '27mb'
+          rate: '270mb'
   influxdb:
     extends:
       file: nolinks.yml
       service: influxdb
+    cpuset: 2,3,6,7
   collector:
     extends:
       file: nolinks.yml
       service: collector
     links:
       - influxdb
+    cpuset: 2,3,6,7
   grafana:
     extends:
       file: nolinks.yml
       service: grafana
     links:
       - influxdb
+    cpuset: 2,3,6,7
 volumes:
   data-sort:
   data-mysql:
