@@ -13,7 +13,6 @@ echo ${MEMORY} | sudo tee $(lssubsys -m memory | cut -d ' ' -f2)/consolidate/mem
 
 docker-compose -f unrestricted.yml up -d --build
 # Prepare Starts
-docker-compose exec sort     prepare          ${STSIZE} > /dev/null 2>&1
 docker-compose exec sysbench prepare --dbsize ${DBSIZE} > /dev/null 2>&1
 # Prepare Ends
 docker-compose down
@@ -28,7 +27,7 @@ docker-compose up -d
 # Sort :       |-----|-----|-----------------
 PERIODE=$((60))
 docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
-docker-compose exec sort run -S 1G
+docker-compose exec sort online
 docker-compose exec sysbench run --dbsize ${DBSIZE} --duration ${PERIODE} > /dev/null 2>&1
 while docker-compose exec sort status | grep running
 do
