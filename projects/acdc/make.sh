@@ -41,3 +41,5 @@ done
 # RUN Ends
 docker-compose stop collector
 docker-compose start grafana
+docker-compose exec influxdb influx -database dockerstats -execute 'select * from /.*/' -format=csv > dockerstats.csv
+docker-compose exec influxdb influx -database sysbenchstats -execute 'select * from /.*/' -format=csv > sysbenchstats.csv
