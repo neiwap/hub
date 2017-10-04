@@ -9,5 +9,6 @@ RUN tar -xf gensort-linux-1.5.tar.gz || true
 COPY prepare /usr/bin/prepare
 COPY run /usr/bin/run
 COPY status /usr/bin/status
+COPY online /usr/bin/online
 COPY daemon.sh daemon.sh
 ENTRYPOINT [ "./daemon.sh" ]

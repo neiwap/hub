@@ -1,0 +1,3 @@
+#!/bin/bash
+GENSORT='-a 100000000'
+echo "./64/valsort ${VALSORT} <(./64/gensort ${GENSORT} >(/usr/bin/time ${TIME} sort ${SORT}))" > $(mktemp ./jobXXX)
