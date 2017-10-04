@@ -56,14 +56,15 @@ def prepare(args):
         subprocess.check_call(mysql_call + ['-e', 'shutdown'])
 
 def run(args):
-    def foo(x): print(x)
-    args.callback = influx
-
     client = influxdb.InfluxDBClient(host='influxdb',
-                                     database='perf')
-    client.create_database('perf')
+                                     database='sysbenchstats')
+    client.create_database('sysbenchstats')
+    measurement = 'online'
+    tags = {
+        'hostname' : subprocess.check_output(mysql_call + ['-BNe', 'select @@hostname;'])
+    }
     def callback(res):
-        client.write_points([p for p in influx(res)])
+        client.write_points([p for p in influxformat(measurement, res, tags=tags)])
     args.callback = callback
 
     call = sysbench_call(args.dbsize) + ['--report-interval=1',
@@ -84,11 +85,11 @@ def run(args):
 def dummy(*args,**kwargs):
     pass
 
-def influx(fields, tags={}):
+def influxformat(measurement, fields, tags={}):
     t = datetime.datetime.utcfromtimestamp(int(fields['timestamp']))
     del fields['timestamp']
     point = {
-        "measurement": "sysbench",
+        "measurement": measurement,
         "tags": tags,
         "time": t,
         "fields": fields,
