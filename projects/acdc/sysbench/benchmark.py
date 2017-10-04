@@ -61,10 +61,10 @@ def run(args):
     client.create_database('sysbenchstats')
     measurement = 'online'
     tags = {
-        'hostname' : subprocess.check_output(mysql_call + ['-BNe', 'select @@hostname;'])
+        'hostname' : subprocess.check_output(mysql_call + ['-BNe', 'select @@hostname;'])[:-1]
     }
-    def callback(res):
-        client.write_points([p for p in influxformat(measurement, res, tags=tags)])
+    def callback(fields):
+        client.write_points([p for p in influxformat(measurement, fields, tags=tags)])
     args.callback = callback
 
     call = sysbench_call(args.dbsize) + ['--report-interval=1',
